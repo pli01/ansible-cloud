@@ -1,0 +1,75 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install common apt packages
+  apt: pkg={{ item }} state=latest update_cache=true
+  with_items: '{{ docker_common_packages }}'
+
+- name: Get docker GPG key
+  get_url: url='{{ docker.deb.repo_keyserver }}'  dest="/tmp/GPG-KEY-docker" mode=0440 timeout=30 use_proxy={{proxy}} validate_certs=False
+  environment: "{{ proxy_env }}"
+  when: ansible_os_family == 'Debian'
+
+- name: docker apt GPG key
+  apt_key: file="/tmp/GPG-KEY-docker"
+  when: ansible_os_family == 'Debian'
+
+- name: Add dockerrepo to source list
+  apt_repository: repo="{{ docker.deb.repo }}" state=present
+
+- name: Update cache
+  apt: update_cache=yes
+
+#- name: cache policy
+#  command: apt-cache policy docker-engine
+
+- name: install docker
+  apt: pkg={{ item }} state=present update_cache=true
+  with_items: '{{ docker_package }}'
+  when: check_mode == false
+
+- name: prepare systemd configuration for docker base image build
+  file: path=/etc/systemd/system/docker.service.d state=directory mode=0755
+
+## TODO: fix http_proxy with /etc/default/docker
+- name: configure web proxy for docker base image build
+  blockinfile:
+    dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+    create: yes
+    block: |
+      [Service]
+      Environment="HTTP_PROXY={{ proxy_env.http_proxy }}" "HTTPS_PROXY={{ proxy_env.https_proxy }}" "NO_PROXY=127.0.0.1,localhost"
+  when: check_mode == false
+  register: docker_conf_update
+
+- name: systemd daemon-reload
+  command: systemctl daemon-reload
+  notify:
+     - restart docker
+  when: docker_conf_update
+
+- name: start docker service
+  service: name="{{ docker_service_name }}" state={{ docker_service_state }} enabled={{ docker_service_enabled }}
+  when: check_mode == false
+
+- name: Install debootstrap for building primary docker images (debian)
+  apt: name=debootstrap update_cache=yes
+
+- name: Install rinse for building primary docker images (redhat/centos)
+  apt: name=rinse update_cache=yes
+
+- name: Get docker compose
+  get_url: url="{{ docker_compose.repository}}/{{ docker_compose.version }}/{{ docker_compose_name }}" dest=/usr/local/bin/docker-compose mode=755 validate_certs=no use_proxy={{proxy}} force=yes
+  environment: "{{ proxy_env }}"
+
+- name: Ajout du groupe docker
+  group: name=docker state=present
+
+- name: Ajout du user jenkins
+  user: name={{ item }} groups=docker append=yes
+  with_items: '{{ docker_users }}'
+
+## TODO:
+# add rinse rhel6.packages (with redhat-release-server)
+# patch contrib/mkimage/deboostrap

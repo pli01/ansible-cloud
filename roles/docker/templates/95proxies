@@ -1,0 +1,2 @@
+Acquire::http::proxy "{{ web.proxy.http }}";
+Acquire::https::proxy "{{ web.proxy.https }}";

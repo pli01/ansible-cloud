@@ -1,0 +1,37 @@
+check_mode: '{{ ansible_check_mode }}'
+proxy: no
+proxy_env:
+  http_proxy:
+  https_proxy:
+# create_instances
+key_name: pli
+image: "Debian 8"
+flavor: vps-ssd-1
+network: Ext-Net
+availability_zone: nova
+prefix: demo
+servers:
+  - name: lb1
+    image: "{{ image }}"
+    flavor: "{{ flavor }}"
+    key: "{{ key_name }}"
+    nics: "net-name={{ network }}"
+    availability_zone: "{{ availability_zone }}"
+    meta:
+      group: loadbalancers
+  - name: app1
+    image: "{{ image }}"
+    flavor: "{{ flavor }}"
+    key: "{{ key_name }}"
+    nics: "net-name={{ network }}"
+    availability_zone: "{{ availability_zone }}"
+    meta:
+      group: appservers
+  - name: app2
+    image: "{{ image }}"
+    flavor: "{{ flavor }}"
+    key: "{{ key_name }}"
+    nics: "net-name={{ network }}"
+    availability_zone: "{{ availability_zone }}"
+    meta:
+      group: appservers

@@ -1,0 +1,12 @@
+---
+# defaults file for create_instances
+prefix: demo
+servers:
+  - name: lb1
+    image: Debian 8
+    flavor: vps-ssd-1
+    key: keyname
+    nics: "net-name=Ext-Net"
+    availability_zone: nova
+    meta:
+      group: loadbalancers

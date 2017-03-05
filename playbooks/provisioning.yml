@@ -3,7 +3,7 @@
   hosts: localhost
   roles:
     - { role: shade }
-    - { role: create_instances }
+    - { role: create_instances, clean_instances: true }
 
 - name: deploy haproxy
   hosts: loadbalancers:appservers

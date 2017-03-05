@@ -1,5 +1,7 @@
 ---
 # defaults file for create_instances
+create_instances: true
+clean_instances: false
 prefix: demo
 servers:
   - name: lb1

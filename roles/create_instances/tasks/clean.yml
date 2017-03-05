@@ -1,0 +1,14 @@
+---
+# tasks file for create_instances
+- name: remove instances
+  os_server:
+    name: "{{ prefix }}-{{ item.name }}"
+    state: absent
+    key_name: "{{ item.key }}"
+    availability_zone: "{{ item.availability_zone }}"
+    nics: "{{ item.nics }}"
+    image: "{{ item.image }}"
+    flavor: "{{ item.flavor }}"
+    wait: yes
+  with_items: "{{ servers }}"
+  register: "os_hosts"

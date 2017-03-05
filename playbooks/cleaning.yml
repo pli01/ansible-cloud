@@ -1,0 +1,6 @@
+---
+- name: remove instances
+  hosts: localhost
+  roles:
+    - { role: shade }
+    - { role: create_instances, clean_instances: true, create_instances: false }

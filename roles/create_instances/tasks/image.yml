@@ -1,0 +1,13 @@
+---
+- name: stop instance to create image
+  os_server_actions:
+    server: "{{ prefix }}-{{ item.name }}"
+    action: stop
+  with_items: "{{ servers }}"
+  register: "os_hosts"
+
+- name: create image from instance
+  shell: openstack image create "{{ prefix }}-{{ item.name }}"
+  with_items: "{{ servers }}"
+  register: sh_img_id
+  failed_when: sh_img_id.stdout | trim == ''

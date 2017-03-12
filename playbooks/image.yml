@@ -1,0 +1,11 @@
+---
+- name: create instances
+  hosts: localhost
+  roles:
+    - { role: shade }
+    - { role: create_instances, clean_instances: true, create_images: true }
+
+- name: deploy haproxy
+  hosts: loadbalancers:appservers
+  roles:
+    - { role: ping }

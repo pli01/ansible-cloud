@@ -6,6 +6,7 @@ proxy_env:
 # create_instances
 key_name: pli
 image: "Debian 8"
+#image: "demo-lb1"
 flavor: vps-ssd-1
 network: Ext-Net
 availability_zone: nova

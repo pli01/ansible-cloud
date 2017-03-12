@@ -5,3 +5,6 @@
 
 - include: create.yml
   when: create_instances is defined and create_instances
+
+- include: image.yml
+  when: create_images is defined and create_images

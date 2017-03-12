@@ -6,4 +6,6 @@ build:
 
 clean:
 	ansible-playbook -i cld -c local playbooks/cleaning.yml
+image:
+	ansible-playbook -i cld -c local playbooks/image.yml
 
